@@ -1,6 +1,9 @@
 package io.cloudthing.communication;
 
 import io.cloudthing.sdk.device.connectivity.mqtt.ClientWrapper;
+import io.cloudthing.sdk.device.connectivity.mqtt.IMqttCloudthingClient;
+import io.cloudthing.sdk.device.connectivity.mqtt.MqttCloudthingClient;
+import io.cloudthing.sdk.device.connectivity.mqtt.MqttCloudthingClientBuilder;
 import io.cloudthing.sdk.device.utils.CredentialCache;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
@@ -14,12 +17,17 @@ public class MqttCommandSubscriber {
 
     private static final String COMMAND_TOPIC_TMPL = "v1/%s/commands/+";
 
-    private ClientWrapper clientWrapper;
+    private IMqttCloudthingClient mqttCloudthingClient;
 
-    public MqttCommandSubscriber() {
+    public MqttCommandSubscriber() throws MqttException {
         CredentialCache credentials = CredentialCache.getInstance();
-        clientWrapper = new ClientWrapper(credentials.getTenant(), credentials.getDeviceId(), credentials.getToken());
-        clientWrapper.setCallback(
+        mqttCloudthingClient = new MqttCloudthingClientBuilder()
+                .setTenant(credentials.getTenant())
+                .setDeviceId(credentials.getDeviceId())
+                .setToken(credentials.getToken())
+                .build();
+
+        mqttCloudthingClient.setCallback(
                 new MqttCallback() {
                     @Override
                     public void connectionLost(Throwable cause) {
@@ -45,15 +53,15 @@ public class MqttCommandSubscriber {
 
     public void subscribe() throws MqttException {
         connectToServer();
-        clientWrapper.subscribe(getTopic());
+        mqttCloudthingClient.subscribe(getTopic());
     }
 
     private void connectToServer() throws MqttException {
-        clientWrapper.connect();
+        mqttCloudthingClient.connect();
     }
 
     public void disconnectFromServer() throws MqttException {
-        clientWrapper.disconnect();
+        mqttCloudthingClient.disconnect();
     }
 
     private String getTopic() {

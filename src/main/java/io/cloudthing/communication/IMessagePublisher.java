@@ -3,6 +3,7 @@ package io.cloudthing.communication;
 import io.cloudthing.sdk.device.connectivity.http.DeviceRequestFactory;
 import io.cloudthing.sdk.device.connectivity.http.EventRequestFactory;
 import io.cloudthing.sdk.device.connectivity.http.StringDataRequestFactory;
+import io.cloudthing.sdk.device.data.ICloudThingMessage;
 
 /**
  * Created by kleptoman on 22.12.16.
@@ -13,7 +14,7 @@ public interface IMessagePublisher {
 
     void setMessagePayload(String payload);
 
-    void sendMessage() throws Exception;
+    void sendMessage(ICloudThingMessage message) throws Exception;
 
     enum MessageType {
 

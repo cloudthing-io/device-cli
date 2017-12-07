@@ -1,6 +1,7 @@
 package io.cloudthing.communication;
 
-import io.cloudthing.sdk.device.connectivity.mqtt.ClientWrapper;
+import io.cloudthing.sdk.device.connectivity.mqtt.IMqttCloudthingClient;
+import io.cloudthing.sdk.device.connectivity.mqtt.MqttCloudthingClientBuilder;
 import io.cloudthing.sdk.device.data.EventPayload;
 import io.cloudthing.sdk.device.data.ICloudThingMessage;
 import io.cloudthing.sdk.device.utils.CredentialCache;
@@ -21,7 +22,7 @@ public class MqttMessagePublisher implements IMessagePublisher {
         return new MessagePublisherBuilder();
     }
 
-    private ClientWrapper clientWrapper;
+    private IMqttCloudthingClient mqttCloudthingClient;
 
     private IMessagePublisher.MessageType messageType;
     private String eventId;
@@ -54,18 +55,18 @@ public class MqttMessagePublisher implements IMessagePublisher {
     }
 
     @Override
-    public void sendMessage() throws Exception {
+    public void sendMessage(ICloudThingMessage message) throws Exception {
         connectToServer();
-        clientWrapper.publish(getTopic(),getMessage());
+        mqttCloudthingClient.publish(getTopic(), message,1);
         disconnectFromServer();
     }
 
     private void connectToServer() throws MqttException {
-        clientWrapper.connect();
+        mqttCloudthingClient.connect();
     }
 
     private void disconnectFromServer() throws MqttException {
-        clientWrapper.disconnect();
+        mqttCloudthingClient.disconnect();
     }
 
     private String getTopic() {
@@ -98,10 +99,19 @@ public class MqttMessagePublisher implements IMessagePublisher {
         }
 
         @Override
-        public MqttMessagePublisher build() {
+        public MqttMessagePublisher build() throws MqttException {
             CredentialCache credentials = CredentialCache.getInstance();
-            publisher.clientWrapper = new ClientWrapper(credentials.getTenant(), credentials.getDeviceId(), credentials.getToken());
-            publisher.clientWrapper.setCallback(
+
+            publisher.mqttCloudthingClient = new MqttCloudthingClientBuilder()
+                    .getBuilder()
+                    .setTenant(credentials.getTenant())
+                    .setQos(1)
+                    .setDeviceId(credentials.getDeviceId())
+                    .setToken(credentials.getToken())
+                    .setSecure(true)
+                    .build();
+
+            publisher.mqttCloudthingClient.setCallback(
                     new MqttCallback() {
                         @Override
                         public void connectionLost(Throwable cause) {

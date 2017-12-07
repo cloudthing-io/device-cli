@@ -4,6 +4,7 @@ import io.cloudthing.sdk.device.connectivity.http.StringDataRequestFactory;
 import io.cloudthing.sdk.device.connectivity.http.DeviceRequestFactory;
 import io.cloudthing.sdk.device.connectivity.http.EventRequestFactory;
 import io.cloudthing.sdk.device.connectivity.http.HttpRequestQueue;
+import io.cloudthing.sdk.device.data.ICloudThingMessage;
 import io.cloudthing.sdk.device.utils.CredentialCache;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -60,7 +61,7 @@ public class HttpMessagePublisher implements IMessagePublisher {
     }
 
     @Override
-    public void sendMessage() {
+    public void sendMessage(ICloudThingMessage message) {
         requestQueue.addToRequestQueue(requestFactory.getRequest(), requestFactory.getListener());
     }
 
