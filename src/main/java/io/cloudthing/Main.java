@@ -9,6 +9,7 @@ import io.cloudthing.sdk.device.utils.CredentialCache;
 import org.apache.commons.cli.*;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -37,26 +38,25 @@ public class Main {
         if (cmd.hasOption("command")) {
             subscribe();
         } else {
+            handleData(cmd);
+        }
+    }
 
-            //publish(cmd);
-//
-//            List<DataChunk> voltageMessage = toMessage("voltage", 230, 10, 300);
-//            send(voltageMessage,cmd);
-//
-//            List<DataChunk> currentMessage = toMessage("current", 1, 1,300);
-//            send(currentMessage,cmd);
-//
-//            List<DataChunk> demandMessage = toMessage("power", 60, 5, 300);
-//            send(demandMessage,cmd);
-
-//            List<DataChunk> humMessage = toMessage("hum", 60, 20, 300);
-//            send(humMessage,cmd);
-
-//            List<DataChunk> tempMessage = toMessage("temp", 25, 5, 300);
-//            send(tempMessage,cmd);
-
-            List<DataChunk> reedMessage = toMessage("window", 600);
-            send(reedMessage,cmd);
+    private static void handleData(CommandLine cmd) throws Exception {
+        if (cmd.hasOption("periodic")) {
+            if ("boolean".equals(cmd.getOptionValue("periodicType"))) {
+                List<DataChunk> reedMessage = toMessageBoolean(cmd.getOptionValue("periodicKey"), Integer.parseInt(cmd.getOptionValue("periodicResolution")));
+                send(reedMessage, cmd);
+            } else if ("double".equals(cmd.getOptionValue("periodicType"))) {
+                List<DataChunk> reedMessage = toMessageDouble(cmd.getOptionValue("periodicKey"),
+                        Integer.parseInt(cmd.getOptionValue("periodicResolution")),
+                        Long.parseLong(cmd.getOptionValue("periodicStart")),
+                        Long.parseLong(cmd.getOptionValue("periodicEnd"))
+                );
+                send(reedMessage, cmd);
+            }
+        } else {
+            publish(cmd);
         }
     }
 
@@ -119,14 +119,31 @@ public class Main {
         for (long i=start; i < end; i=i+timeResolution) {
             Random random = new Random();
             double value = rawVal - tolerance + +random.nextInt((int)tolerance*2) + random.nextDouble();
+            result.add(new DataChunk(keyName, value, i));
+        }
+        return result;
+    }
 
+    private static List<DataChunk> toMessageDouble(String keyName, int timeResolution, long start, long end) {
+        System.out.println(keyName);
+        System.out.println(timeResolution);
+        List<DataChunk> result = new ArrayList<>();
+
+        for (long i=start; i < end; i=i+timeResolution) {
+
+            Random random = new Random();
+            double value = 0.4 + random.nextDouble() * (0.8 - 0.4);
+            value *= 24.0;
+            System.out.println(new Date(i * 1000).toString() + ", value: " + value);
             result.add(new DataChunk(keyName, value, i));
         }
         return result;
     }
 
 
-    private static List<DataChunk> toMessage(String keyName, int timeResolution) {
+    private static List<DataChunk> toMessageBoolean(String keyName, int timeResolution) {
+        System.out.println(keyName);
+        System.out.println(timeResolution);
         List<DataChunk> result = new ArrayList<>();
         long start = 1512345600;
         long end = 1512950400;

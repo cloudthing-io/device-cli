@@ -14,12 +14,10 @@ public class CliOptionsFactory {
 
     public static Options getOptions() {
         Options options = new Options();
-        for (Option opt :
-                OPTIONS) {
+        for (Option opt : OPTIONS) {
             options.addOption(opt);
         }
-        for (OptionGroup group :
-                OPTIONS_GROUPS) {
+        for (OptionGroup group : OPTIONS_GROUPS) {
             options.addOptionGroup(group);
         }
         return options;
@@ -39,6 +37,31 @@ public class CliOptionsFactory {
         option.setRequired(true);
         optionBuilder.add(option);
         option = new Option("m", "message", true, "Payload of the event or JSON formatted data object");
+        option.setRequired(false);
+        optionBuilder.add(option);
+
+        option = new Option("p", "periodic", false, "Sending periodic randomized data in given range - boolean");
+        option.setRequired(false);
+        optionBuilder.add(option);
+        option = new Option("pt", "periodicType", true, "Value type in periodic message [boolean,double]");
+        option.setRequired(false);
+        optionBuilder.add(option);
+        option = new Option("pdmn", "periodicDoubleMin", true, "Min value for double periodic type");
+        option.setRequired(false);
+        optionBuilder.add(option);
+        option = new Option("pdmx", "periodicDoubleMax", true, "Max value for double periodic type");
+        option.setRequired(false);
+        optionBuilder.add(option);
+        option = new Option("ps", "periodicStart", true, "Start for periodic mode");
+        option.setRequired(false);
+        optionBuilder.add(option);
+        option = new Option("pe", "periodicEnd", true, "End for periodic mode");
+        option.setRequired(false);
+        optionBuilder.add(option);
+        option = new Option("pr", "periodicResolution", true, "Time resolution for periodic mode");
+        option.setRequired(false);
+        optionBuilder.add(option);
+        option = new Option("pk", "periodicKey", true, "Key for periodic mode");
         option.setRequired(false);
         optionBuilder.add(option);
 
