@@ -102,13 +102,14 @@ public class MqttMessagePublisher implements IMessagePublisher {
         public MqttMessagePublisher build() throws MqttException {
             CredentialCache credentials = CredentialCache.getInstance();
 
-            publisher.mqttCloudthingClient = new MqttCloudthingClientBuilder()
+            publisher.mqttCloudthingClient = MqttCloudthingClientBuilder
                     .getBuilder()
                     .setTenant(credentials.getTenant())
                     .setQos(1)
                     .setDeviceId(credentials.getDeviceId())
                     .setToken(credentials.getToken())
                     .setSecure(true)
+                    .setServerTemplate("{tenant}.cloudthing.io")
                     .build();
 
             publisher.mqttCloudthingClient.setCallback(

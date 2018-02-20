@@ -51,7 +51,10 @@ public class Main {
                 List<DataChunk> reedMessage = toMessageDouble(cmd.getOptionValue("periodicKey"),
                         Integer.parseInt(cmd.getOptionValue("periodicResolution")),
                         Long.parseLong(cmd.getOptionValue("periodicStart")),
-                        Long.parseLong(cmd.getOptionValue("periodicEnd"))
+                        Long.parseLong(cmd.getOptionValue("periodicEnd")),
+                        Double.parseDouble(cmd.getOptionValue("periodicDoubleMin")),
+                        Double.parseDouble(cmd.getOptionValue("periodicDoubleMax")),
+                        cmd.hasOption("periodicDoubleAggregate")
                 );
                 send(reedMessage, cmd);
             }
@@ -124,17 +127,20 @@ public class Main {
         return result;
     }
 
-    private static List<DataChunk> toMessageDouble(String keyName, int timeResolution, long start, long end) {
+    private static List<DataChunk> toMessageDouble(String keyName, int timeResolution,
+                                                   long start, long end,
+                                                   double min, double max,
+                                                   boolean aggregate) {
         System.out.println(keyName);
         System.out.println(timeResolution);
         List<DataChunk> result = new ArrayList<>();
-
+        double sum = 0;
         for (long i=start; i < end; i=i+timeResolution) {
-
             Random random = new Random();
-            double value = 0.4 + random.nextDouble() * (0.8 - 0.4);
-            value *= 24.0;
-            System.out.println(new Date(i * 1000).toString() + ", value: " + value);
+            double newValue = min + random.nextDouble() * (max - min);
+            sum += newValue;
+            double value = aggregate ? sum : newValue;
+            System.out.println(new Date(i * 1000).toString() + ", double value: " + value);
             result.add(new DataChunk(keyName, value, i));
         }
         return result;
