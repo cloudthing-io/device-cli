@@ -52,7 +52,7 @@ public class CliOptionsFactory {
         option = new Option("pdmx", "periodicDoubleMax", true, "Max value for double periodic type");
         option.setRequired(false);
         optionBuilder.add(option);
-        option = new Option("pdagg", "periodicDoubleAggregate", false,
+        option = new Option("pdagg", "periodicDoubleAggregate", true,
                 "Aggregate generated values over time and send the outputs");
         option.setRequired(false);
         optionBuilder.add(option);

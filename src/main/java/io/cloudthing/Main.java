@@ -48,13 +48,19 @@ public class Main {
                 List<DataChunk> reedMessage = toMessageBoolean(cmd.getOptionValue("periodicKey"), Integer.parseInt(cmd.getOptionValue("periodicResolution")));
                 send(reedMessage, cmd);
             } else if ("double".equals(cmd.getOptionValue("periodicType"))) {
+                boolean aggregate = cmd.hasOption("periodicDoubleAggregate");
+                double aggregateStart = 0;
+                if (aggregate) {
+                    aggregateStart = Double.parseDouble(cmd.getOptionValue("periodicDoubleAggregate"));
+                }
                 List<DataChunk> reedMessage = toMessageDouble(cmd.getOptionValue("periodicKey"),
                         Integer.parseInt(cmd.getOptionValue("periodicResolution")),
                         Long.parseLong(cmd.getOptionValue("periodicStart")),
                         Long.parseLong(cmd.getOptionValue("periodicEnd")),
                         Double.parseDouble(cmd.getOptionValue("periodicDoubleMin")),
                         Double.parseDouble(cmd.getOptionValue("periodicDoubleMax")),
-                        cmd.hasOption("periodicDoubleAggregate")
+                        aggregate,
+                        aggregateStart
                 );
                 send(reedMessage, cmd);
             }
@@ -130,11 +136,9 @@ public class Main {
     private static List<DataChunk> toMessageDouble(String keyName, int timeResolution,
                                                    long start, long end,
                                                    double min, double max,
-                                                   boolean aggregate) {
-        System.out.println(keyName);
-        System.out.println(timeResolution);
+                                                   boolean aggregate, double aggStart) {
         List<DataChunk> result = new ArrayList<>();
-        double sum = 0;
+        double sum = aggStart;
         for (long i=start; i < end; i=i+timeResolution) {
             Random random = new Random();
             double newValue = min + random.nextDouble() * (max - min);
@@ -148,8 +152,6 @@ public class Main {
 
 
     private static List<DataChunk> toMessageBoolean(String keyName, int timeResolution) {
-        System.out.println(keyName);
-        System.out.println(timeResolution);
         List<DataChunk> result = new ArrayList<>();
         long start = 1512345600;
         long end = 1512950400;
